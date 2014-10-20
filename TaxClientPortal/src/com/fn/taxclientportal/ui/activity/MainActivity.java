@@ -16,6 +16,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v4.view.ViewPager.OnPageChangeListener;
@@ -27,6 +28,7 @@ import android.widget.ImageView;
 import android.widget.ImageView.ScaleType;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.app.SherlockFragmentActivity;
@@ -66,6 +68,9 @@ public class MainActivity extends SherlockFragmentActivity {
 	private int[] menuImageViews = { R.id.home_imageview,
 			R.id.publicservice_imageview, R.id.mobiletax_imageview,
 			R.id.usercenter_imageview };
+	
+	// 快速双击退出App
+	private boolean doublePressBackToExitAtOnce = false;
 
 	@SuppressLint("InflateParams")
 	@Override
@@ -146,6 +151,31 @@ public class MainActivity extends SherlockFragmentActivity {
 				}
 			}
 		}
+	}
+	
+	@Override
+	public void onBackPressed() {
+		Log.d(TAG, "the flag of double press back to exit is:" + this.doublePressBackToExitAtOnce);
+		// 双击回退键退出App
+		if (this.doublePressBackToExitAtOnce) {
+			Log.i(TAG, "double press back to exit at once");
+			super.onBackPressed();
+			return;
+		} 
+		
+		this.doublePressBackToExitAtOnce = true;
+		
+		// 提示
+		Toast.makeText(this, R.string.press_again_to_exit, Toast.LENGTH_LONG).show();
+		
+		// 2秒后重置开关
+		new Handler().postDelayed(new Runnable() {
+			
+			@Override
+			public void run() {
+				doublePressBackToExitAtOnce = false;
+			}
+		}, 2000L);
 	}
 
 	/**
