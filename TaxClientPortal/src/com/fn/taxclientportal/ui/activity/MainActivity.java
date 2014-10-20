@@ -163,6 +163,7 @@ public class MainActivity extends SherlockFragmentActivity {
 			return;
 		} 
 		
+		// 更新开关变量
 		this.doublePressBackToExitAtOnce = true;
 		
 		// 提示
