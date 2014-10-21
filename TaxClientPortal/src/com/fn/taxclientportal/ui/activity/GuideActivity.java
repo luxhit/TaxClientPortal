@@ -7,7 +7,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v4.view.ViewPager.OnPageChangeListener;
@@ -18,7 +20,7 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 
-import com.fn.taxclientportal.R;
+import com.fn.taxclientportal.ui.app.TaxConstants;
 
 /**
  * 导航UI
@@ -60,25 +62,33 @@ public class GuideActivity extends TaxBasicActivity {
 		for (int image : images) {
 			ImageView iv = new ImageView(GuideActivity.this);
 			iv.setBackgroundResource(image);
-			
+
 			mListViews.add(iv);
 		}
-		
-		View guideStartView = LayoutInflater.from(GuideActivity.this).inflate(R.layout.guide_start_layout, null);
+
+		View guideStartView = LayoutInflater.from(GuideActivity.this).inflate(
+				R.layout.guide_start_layout, null);
 		mListViews.add(guideStartView);
-		
+
 		startBtn = (Button) guideStartView.findViewById(R.id.start_btn);
 		startBtn.setOnClickListener(new OnClickListener() {
-			
+
 			@Override
 			public void onClick(View v) {
 				aquery.id(R.id.loading_progress).visible();
-				Intent intent = new Intent(GuideActivity.this, MainActivity.class);
-                startActivity(intent);
-                GuideActivity.this.finish();
+				Intent intent = new Intent(GuideActivity.this,
+						MainActivity.class);
+				startActivity(intent);
+				GuideActivity.this.finish();
+				// save installed completely
+				SharedPreferences.Editor editor = PreferenceManager
+						.getDefaultSharedPreferences(GuideActivity.this).edit();
+				
+				editor.putBoolean(TaxConstants.App.IS_INSTALLED, true);
+				editor.commit();
 			}
 		});
-		
+
 		mViewPager.setAdapter(new GuildPagerAdapter());
 
 		mViewPager.setOnPageChangeListener(new OnPageChangeListener() {
@@ -104,7 +114,8 @@ public class GuideActivity extends TaxBasicActivity {
 
 	private void createDots() {
 		// 导航dots
-		LinearLayout layout = (LinearLayout) aquery.id(R.id.guide_dots).getView();
+		LinearLayout layout = (LinearLayout) aquery.id(R.id.guide_dots)
+				.getView();
 
 		// dots数组
 		guideDots = new ImageView[mListViews.size()];

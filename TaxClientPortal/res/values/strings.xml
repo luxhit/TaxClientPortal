@@ -20,4 +20,6 @@
 	<string name="levied_interactive">征纳互动</string>
 	<string name="public_platform">公众平台</string>
 	<string name="tax_platform">涉税平台</string>
+	<!-- 提示信息 -->
+	<string name="press_again_to_exit">再按一次退出</string>
 </resources>

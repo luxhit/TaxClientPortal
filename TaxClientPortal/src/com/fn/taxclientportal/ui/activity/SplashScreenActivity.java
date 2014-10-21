@@ -4,18 +4,19 @@
 package com.fn.taxclientportal.ui.activity;
 
 import android.annotation.SuppressLint;
-import android.app.ProgressDialog;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Point;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.preference.PreferenceManager;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.WindowManager;
 
-import com.fn.taxclientportal.R;
 import com.fn.taxclientportal.ui.app.TaxAppContext;
+import com.fn.taxclientportal.ui.app.TaxConstants.App;
 
 /**
  * @author luxiang
@@ -30,7 +31,7 @@ public class SplashScreenActivity extends TaxBasicActivity {
 		super.onCreate(savedInstanceState);
 
 		this.setContentView(R.layout.splash_layout);
-
+		
 		this.getSupportActionBar().hide();
 
 		new Handler().postDelayed(new Runnable() {
@@ -38,13 +39,23 @@ public class SplashScreenActivity extends TaxBasicActivity {
 			public void run() {
 				initGlobalParams();
 
-				ProgressDialog myDialog = ProgressDialog.show(
-						SplashScreenActivity.this, "", "Loading", true);
+//				ProgressDialog myDialog = ProgressDialog.show(
+//						SplashScreenActivity.this, "", "Loading", true);
 
-				Intent intent = new Intent(SplashScreenActivity.this,
-						GuideActivity.class);
-				SplashScreenActivity.this.startActivity(intent);
-				myDialog.dismiss();
+				SharedPreferences sharedPreferences =  PreferenceManager
+						.getDefaultSharedPreferences(SplashScreenActivity.this);
+				
+				if (!sharedPreferences.getBoolean(App.IS_INSTALLED, false)) {
+					Intent intent = new Intent(SplashScreenActivity.this,
+							GuideActivity.class);
+					SplashScreenActivity.this.startActivity(intent);
+	//				myDialog.dismiss();
+					
+				} else {
+					Intent intent = new Intent(SplashScreenActivity.this,
+							MainActivity.class);
+					SplashScreenActivity.this.startActivity(intent);
+				}
 				SplashScreenActivity.this.finish();
 			}
 

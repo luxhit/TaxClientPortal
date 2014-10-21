@@ -20,7 +20,6 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.actionbarsherlock.app.SherlockFragment;
-import com.fn.taxclientportal.R;
 
 /**
  * @author luxiang
@@ -44,7 +43,7 @@ public class HomeFragment extends SherlockFragment {
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
 		view = LayoutInflater.from(getActivity()).inflate(
-				R.layout.main_fragment_layout, null);
+				R.layout.main_grid_layout, null);
 		gridView = (GridView) view.findViewById(R.id.main_gridview);
 
 		// 关闭滚动条

@@ -20,7 +20,6 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.actionbarsherlock.app.SherlockFragment;
-import com.fn.taxclientportal.R;
 
 /**
  * @author luxiang
@@ -42,9 +41,9 @@ public class MobileTaxFragment extends SherlockFragment {
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
-		view = LayoutInflater.from(getActivity()).inflate(
-				R.layout.main_fragment_layout, null);
-		gridView = (GridView) view.findViewById(R.id.main_gridview);
+		view = inflater.inflate(
+				R.layout.public_service_fragment_layout, null);
+		gridView = (GridView) view.findViewById(R.id.public_service_gridview);
 
 		// 关闭滚动条
 		gridView.setVerticalScrollBarEnabled(false);

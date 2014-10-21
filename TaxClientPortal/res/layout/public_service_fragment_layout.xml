@@ -9,14 +9,10 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context=".MainActivity" >
 
-    <GridView
-        android:id="@+id/main_gridview"
+    <cn.trinea.android.view.autoscrollviewpager.AutoScrollViewPager
+        android:id="@+id/public_service_viewpager"
         android:layout_width="match_parent"
-        android:layout_height="fill_parent"
-        android:horizontalSpacing="10dp"
-        android:numColumns="4"
-        android:verticalSpacing="10dp"
-         >
-    </GridView>
+        android:layout_height="fill_parent" >
+    </cn.trinea.android.view.autoscrollviewpager.AutoScrollViewPager>
 
 </RelativeLayout>

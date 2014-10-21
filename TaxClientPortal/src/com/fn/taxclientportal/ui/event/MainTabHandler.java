@@ -1,24 +1,23 @@
 package com.fn.taxclientportal.ui.event;
 
-import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v4.view.ViewPager;
 
 import com.actionbarsherlock.app.ActionBar.Tab;
-import com.fn.taxclientportal.R;
 
 
 
 public class MainTabHandler implements
 		com.actionbarsherlock.app.ActionBar.TabListener {
-	private Fragment fragment;
+	private ViewPager viewpager;
 
-	public MainTabHandler(Fragment fragment) {
-		this.fragment = fragment;
+	public MainTabHandler(ViewPager viewpager) {
+		this.viewpager = viewpager;
 	}
 
 	@Override
 	public void onTabSelected(Tab tab, FragmentTransaction ft) {
-		ft.replace(R.id.frame_content, fragment);
+		viewpager.setCurrentItem(tab.getPosition());
 	}
 
 	@Override

@@ -4,14 +4,9 @@
 package com.fn.taxclientportal.ui.activity;
 
 import android.annotation.SuppressLint;
-import android.view.Gravity;
-import android.view.View;
-import android.widget.TextView;
 
-import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.app.SherlockActivity;
 import com.androidquery.AQuery;
-import com.fn.taxclientportal.R;
 
 /**
  * UI基类

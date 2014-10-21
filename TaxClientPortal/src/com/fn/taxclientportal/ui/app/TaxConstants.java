@@ -19,6 +19,12 @@ public final class TaxConstants implements Serializable {
 	 */
 	private static final long serialVersionUID = 5126445456973563871L;
 	
+	public static class App {
+		public static final String IS_INSTALLED = "is_installed";
+		
+		public static final int PUBLIC_SERVICE_TABS_COUNT = 4;
+	}
+	
 	public static class Foler {
 		/**
 		 * 扩展卡根目录

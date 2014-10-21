@@ -3,7 +3,6 @@
  */
 package com.fn.taxclientportal.ui.activity;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -13,8 +12,6 @@ import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.view.PagerAdapter;
@@ -25,10 +22,10 @@ import android.view.Gravity;
 import android.view.View;
 import android.view.ViewTreeObserver;
 import android.widget.ImageView;
-import android.widget.ImageView.ScaleType;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
+import cn.trinea.android.view.autoscrollviewpager.AutoScrollViewPager;
 
 import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.app.SherlockFragmentActivity;
@@ -36,9 +33,8 @@ import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
 import com.androidquery.AQuery;
-import com.fn.taxclientportal.R;
 import com.fn.taxclientportal.ui.app.TaxAppContext;
-import com.fn.taxclientportal.ui.event.MainTabHandler;
+import com.fn.taxclientportal.ui.transformer.ZoomOutPageTransformer;
 import com.fn.taxclientportal.ui.util.AppUtil;
 
 /**
@@ -51,15 +47,13 @@ import com.fn.taxclientportal.ui.util.AppUtil;
 public class MainActivity extends SherlockFragmentActivity {
 	protected static final String TAG = MainActivity.class.getSimpleName();
 
-	private ViewPager mImageViewPager; // 图片导航页
+	private AutoScrollViewPager mImageViewPager; // 图片导航页
 
 	private List<ImageView> mListImageViews;
 	private ImageView[] imageDots;
 	private int currentIndex; // 当前图片顺序
 
 	private AQuery aquery;
-
-	private boolean isPublicServiceTabCreated = false;
 
 	private int[] menuTextViews = { R.id.home_textview,
 			R.id.publicservice_textview, R.id.mobiletax_textview,
@@ -68,9 +62,14 @@ public class MainActivity extends SherlockFragmentActivity {
 	private int[] menuImageViews = { R.id.home_imageview,
 			R.id.publicservice_imageview, R.id.mobiletax_imageview,
 			R.id.usercenter_imageview };
-	
+
+	private boolean isPublicServiceTabCreated = false;
+
 	// 快速双击退出App
 	private boolean doublePressBackToExitAtOnce = false;
+
+	// 图片切换间隔时间
+	private int imageScrollInterval = 5000;
 
 	@SuppressLint("InflateParams")
 	@Override
@@ -80,8 +79,8 @@ public class MainActivity extends SherlockFragmentActivity {
 		aquery = new AQuery(this);
 
 		// 标题背景渐变
-//		this.getSupportActionBar()
-//				.setDisplayOptions(R.style.Theme_ActionBar_Styled);
+		// this.getSupportActionBar()
+		// .setDisplayOptions(R.style.Theme_ActionBar_Styled);
 		this.getSupportActionBar().setBackgroundDrawable(
 				this.getResources().getDrawable(R.drawable.actionbar_bg_shape));
 
@@ -107,7 +106,18 @@ public class MainActivity extends SherlockFragmentActivity {
 		abar.setDisplayShowCustomEnabled(true);
 		abar.setDisplayShowTitleEnabled(false);
 
-		mImageViewPager = (ViewPager) aquery.id(R.id.image_viewpager).getView();
+		mImageViewPager = (AutoScrollViewPager) aquery.id(R.id.image_viewpager)
+				.getView();
+		// 5秒滚动变换一次
+		mImageViewPager.startAutoScroll(imageScrollInterval);
+		mImageViewPager.setInterval(imageScrollInterval);
+		mImageViewPager.setScrollDurationFactor(5);
+		mImageViewPager.setSlideBorderMode(AutoScrollViewPager.SLIDE_BORDER_MODE_TO_PARENT);
+		mImageViewPager.setPageTransformer(true, new ZoomOutPageTransformer());
+		// 初始化第一张图片简介
+		aquery.id(R.id.imageDescriptionView).text(
+				TaxAppContext.mainImageDescriptions[0]);
+		
 		mImageViewPager.getViewTreeObserver().addOnGlobalLayoutListener(
 				new ViewTreeObserver.OnGlobalLayoutListener() {
 					@Override
@@ -152,26 +162,28 @@ public class MainActivity extends SherlockFragmentActivity {
 			}
 		}
 	}
-	
+
 	@Override
 	public void onBackPressed() {
-		Log.d(TAG, "the flag of double press back to exit is:" + this.doublePressBackToExitAtOnce);
+		Log.d(TAG, "the flag of double press back to exit is:"
+				+ this.doublePressBackToExitAtOnce);
 		// 双击回退键退出App
 		if (this.doublePressBackToExitAtOnce) {
 			Log.i(TAG, "double press back to exit at once");
 			super.onBackPressed();
 			return;
-		} 
-		
+		}
+
 		// 更新开关变量
 		this.doublePressBackToExitAtOnce = true;
-		
+
 		// 提示
-		Toast.makeText(this, R.string.press_again_to_exit, Toast.LENGTH_LONG).show();
-		
+		Toast.makeText(this, R.string.press_again_to_exit, Toast.LENGTH_LONG)
+				.show();
+
 		// 2秒后重置开关
 		new Handler().postDelayed(new Runnable() {
-			
+
 			@Override
 			public void run() {
 				doublePressBackToExitAtOnce = false;
@@ -182,49 +194,46 @@ public class MainActivity extends SherlockFragmentActivity {
 	/**
 	 * 初始化图片视图
 	 */
+	@SuppressLint("ClickableViewAccessibility")
 	private void initImageViews() {
 		aquery.id(R.id.image_viewpager).getView();
 
 		mListImageViews = new ArrayList<ImageView>(5);
 		/*
-		final String[] mainImageFilePaths = TaxAppContext.mainImageFilePaths;
-
-		for (String imageFilePath : mainImageFilePaths) {
-			ImageView iv = new ImageView(MainActivity.this);
-			Log.d(TAG, "imageFilePath:" + imageFilePath);
-
-			if (imageFilePath != null) {
-				File imgFile = new File(imageFilePath);
-				if (imgFile.exists()) {
-
-					// AppUtil.scaleImage(imageFilePath,
-					// mImageViewPager.getMeasuredWidth(),
-					// mImageViewPager.getMeasuredHeight(), imageFilePath);
-					Log.i(TAG, "width:" + mImageViewPager.getMeasuredWidth()
-							+ ", height:" + mImageViewPager.getMeasuredHeight());
-					Bitmap bitmapOriginal = BitmapFactory.decodeFile(imgFile
-							.getAbsolutePath());
-
-					Log.i(TAG, "image width:" + bitmapOriginal.getWidth()
-							+ ", height:" + bitmapOriginal.getHeight());
-					iv.setScaleType(ScaleType.CENTER);
-					iv.setImageBitmap(AppUtil.adaptive(bitmapOriginal,
-							mImageViewPager.getMeasuredWidth(),
-							mImageViewPager.getMeasuredHeight()));
-					// bitmapOriginal.recycle();
-				}
-				// iv.setBackgroundDrawable(Drawable.createFromPath(imageFilePath));
-			}
-
-			mListImageViews.add(iv);
-		}*/
+		 * final String[] mainImageFilePaths = TaxAppContext.mainImageFilePaths;
+		 * 
+		 * for (String imageFilePath : mainImageFilePaths) { ImageView iv = new
+		 * ImageView(MainActivity.this); Log.d(TAG, "imageFilePath:" +
+		 * imageFilePath);
+		 * 
+		 * if (imageFilePath != null) { File imgFile = new File(imageFilePath);
+		 * if (imgFile.exists()) {
+		 * 
+		 * // AppUtil.scaleImage(imageFilePath, //
+		 * mImageViewPager.getMeasuredWidth(), //
+		 * mImageViewPager.getMeasuredHeight(), imageFilePath); Log.i(TAG,
+		 * "width:" + mImageViewPager.getMeasuredWidth() + ", height:" +
+		 * mImageViewPager.getMeasuredHeight()); Bitmap bitmapOriginal =
+		 * BitmapFactory.decodeFile(imgFile .getAbsolutePath());
+		 * 
+		 * Log.i(TAG, "image width:" + bitmapOriginal.getWidth() + ", height:" +
+		 * bitmapOriginal.getHeight()); iv.setScaleType(ScaleType.CENTER);
+		 * iv.setImageBitmap(AppUtil.adaptive(bitmapOriginal,
+		 * mImageViewPager.getMeasuredWidth(),
+		 * mImageViewPager.getMeasuredHeight())); // bitmapOriginal.recycle(); }
+		 * // iv.setBackgroundDrawable(Drawable.createFromPath(imageFilePath));
+		 * }
+		 * 
+		 * mListImageViews.add(iv); }
+		 */
 		int[] imageIds = { R.drawable.main_image0, R.drawable.main_image1,
 				R.drawable.main_image2, R.drawable.main_image3,
 				R.drawable.main_image4 };
 		for (int imageId : imageIds) {
 			ImageView iv = new ImageView(MainActivity.this);
-			Bitmap bitmapOriginal = AppUtil.readBitMap(this.getBaseContext(), imageId);
-			
+			Bitmap bitmapOriginal = AppUtil.readBitMap(this.getBaseContext(),
+					imageId);
+
 			iv.setImageBitmap(AppUtil.adaptive(bitmapOriginal,
 					mImageViewPager.getMeasuredWidth(),
 					mImageViewPager.getMeasuredHeight()));
@@ -238,6 +247,10 @@ public class MainActivity extends SherlockFragmentActivity {
 			@Override
 			public void onPageSelected(int arg0) {
 				doCurrentDotChange(arg0);
+				
+				// 更新图片简介
+				aquery.id(R.id.imageDescriptionView).text(
+						TaxAppContext.mainImageDescriptions[arg0]);
 			}
 
 			@Override
@@ -317,45 +330,31 @@ public class MainActivity extends SherlockFragmentActivity {
 
 		this.changeMenuWidgetState(1);
 
-		ActionBar actionBar = getSupportActionBar();
+		final ActionBar actionBar = getSupportActionBar();
 
-		actionBar.setDisplayShowHomeEnabled(true);
-		actionBar.setLogo(null); // forgot why this one but it helped
+		// actionBar.setDisplayShowHomeEnabled(true);
+		// actionBar.setLogo(null); // forgot why this one but it helped
 
-		View homeIcon = findViewById(Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB ? android.R.id.home
-				: R.id.abs__home);
-		((View) homeIcon.getParent()).setVisibility(View.GONE);
-		((View) homeIcon).setVisibility(View.GONE);
+		// View homeIcon = findViewById(Build.VERSION.SDK_INT >=
+		// Build.VERSION_CODES.HONEYCOMB ? android.R.id.home
+		// : R.id.abs__home);
+		// ((View) homeIcon.getParent()).setVisibility(View.GONE);
+		// ((View) homeIcon).setVisibility(View.GONE);
 
-		actionBar.setDisplayShowTitleEnabled(false);
+		// actionBar.setDisplayShowTitleEnabled(false);
 
 		actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
-//		actionBar.setStackedBackgroundDrawable(this.getResources().getDrawable(
-//				R.drawable.ab_stacked_bg));
+		// actionBar.setStackedBackgroundDrawable(this.getResources().getDrawable(
+		// R.drawable.ab_stacked_bg));
+		// Fragment.instantiate(this, fname);
+		PublicServiceFragment publicServiceFragment = new PublicServiceFragment(
+				this.getSupportFragmentManager(), this.getSupportActionBar());
+		android.support.v4.app.FragmentTransaction fragmentTransaction = this
+				.getSupportFragmentManager().beginTransaction();
+		fragmentTransaction.replace(R.id.frame_content, publicServiceFragment,
+				"publicServiceFragment");
+		fragmentTransaction.commit();
 
-		// 添加tab
-		if (!isPublicServiceTabCreated) {
-			ActionBar.Tab tab1 = actionBar.newTab().setText(
-					R.string.mobile_portal);
-			ActionBar.Tab tab2 = actionBar.newTab().setText(
-					R.string.levied_interactive);
-			ActionBar.Tab tab3 = actionBar.newTab().setText(
-					R.string.public_platform);
-			ActionBar.Tab tab4 = actionBar.newTab().setText(
-					R.string.tax_platform);
-
-			tab1.setTabListener(new MainTabHandler(new MobileTaxFragment()));
-			tab2.setTabListener(new MainTabHandler(new HomeFragment()));
-			tab3.setTabListener(new MainTabHandler(new PublicServiceFragment()));
-			tab4.setTabListener(new MainTabHandler(new PublicServiceFragment()));
-
-			actionBar.addTab(tab1);
-			actionBar.addTab(tab2);
-			actionBar.addTab(tab3);
-			actionBar.addTab(tab4);
-
-			isPublicServiceTabCreated = true;
-		}
 	}
 
 	public void mobileTaxClick(View view) {
